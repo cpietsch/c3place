@@ -105,4 +105,4 @@ dist
 
 *.zip
 
-backend/backend
+backend/backend*
