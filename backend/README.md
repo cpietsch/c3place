@@ -9,6 +9,7 @@ docker compose up
 build and start the api server
 
 ```sh
+export GO111MODULE=on
 go build
 ./backend
 ```
