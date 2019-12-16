@@ -45,14 +45,14 @@ func setupRouter() *gin.Engine {
 	r.POST("/pixel", func(c *gin.Context) {
 		body := PostPixel{}
 
-    err := c.Bind(&body)
+		err := c.Bind(&body)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid post body"})
 			return
 		}
 
-    err = ValidatePixel(body)
-    if err != nil {
+		err = ValidatePixel(body)
+		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
@@ -67,17 +67,6 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
-	// data = []PostPixel{
-	// 	PostPixel{
-	// 		R: 255,
-	// 		G: 0,
-	// 		B: 0,
-	// 		X: 100,
-	// 		Y: 100,
-	// 	},
-	// }
-	// fmt.Println("DATA", data)
-
 	r := setupRouter()
 	r.Run(port)
 }
