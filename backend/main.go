@@ -22,14 +22,6 @@ var (
 	data []PostPixel
 )
 
-type PostPixel struct {
-	R uint8 `json:"r"`
-	G uint8 `json:"g"`
-	B uint8 `json:"b"`
-	X int   `json:"x"`
-	Y int   `json:"y"`
-}
-
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 
@@ -47,7 +39,7 @@ func setupRouter() *gin.Engine {
 
 		buf := new(bytes.Buffer)
 		png.Encode(buf, img)
-		c.String(http.StatusOK, buf.String())
+		c.Data(http.StatusOK, "image/png", buf.Bytes())
 	})
 
 	r.POST("/pixel", func(c *gin.Context) {
@@ -68,16 +60,16 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
-	data = []PostPixel{
-		PostPixel{
-			R: 255,
-			G: 0,
-			B: 0,
-			X: 100,
-			Y: 100,
-		},
-	}
-	fmt.Println("DATA", data)
+	// data = []PostPixel{
+	// 	PostPixel{
+	// 		R: 255,
+	// 		G: 0,
+	// 		B: 0,
+	// 		X: 100,
+	// 		Y: 100,
+	// 	},
+	// }
+	// fmt.Println("DATA", data)
 
 	r := setupRouter()
 	r.Run(port)
