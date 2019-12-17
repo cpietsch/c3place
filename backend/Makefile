@@ -10,7 +10,7 @@ build:
 	@go build
 
 run: build
-	./backend
+	@./backend
 
 build-linux:
 	env GOOS=linux GOARCH=amd64 go build -o backend-linux-amd64

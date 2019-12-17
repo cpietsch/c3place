@@ -32,45 +32,7 @@ var (
 )
 
 func setupRouter() *gin.Engine {
-	rate := limiter.Rate{
-		Period: 1 * time.Second,
-		Limit:  100,
-	}
-
-	// Create a redis client.
-	option, err := redis.ParseURL("redis://" + redisHost + ":" + redisPort + "/0")
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-	client := redis.NewClient(option)
-
-	// Create a store with the redis client.
-	store, err := sredis.NewStoreWithOptions(client, limiter.StoreOptions{
-		Prefix:   "limiter_gin",
-		MaxRetry: 3,
-	})
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-
-	// Create a new middleware with the limiter instance.
-	middleware := mgin.NewMiddleware(limiter.New(store, rate))
-
-	router := gin.Default()
-	router.ForwardedByClientIP = true
-	router.Use(middleware)
-
-	router.GET("/ping", handlerPing)
-	router.GET("/", handlerIndex)
-	router.POST("/pixel", handlerPixel)
-
-	return router
-}
-
-func main() {
-	// get env vars
+  // get env vars
 	port = os.Getenv("PORT")
 	if port == "" {
 		port = "4000"
@@ -87,6 +49,44 @@ func main() {
 	log.Printf("REDIS_HOST : %s\n", redisHost)
 	log.Printf("REDIS_PORT : %s\n", redisPort)
 
+	// Create a redis client.
+	option, err := redis.ParseURL("redis://" + redisHost + ":" + redisPort + "/0")
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+	client := redis.NewClient(option)
+	// Create a store with the redis client.
+	store, err := sredis.NewStoreWithOptions(client, limiter.StoreOptions{
+		Prefix:   "limiter_gin",
+		MaxRetry: 3,
+	})
+	if err != nil {
+		log.Fatal(err)
+		os.Exit(1)
+	}
+
+	// Create a new middleware with the limiter instance.
+  rate := limiter.Rate{
+		Period: 1 * time.Second,
+		Limit:  100,
+	}
+	middleware := mgin.NewMiddleware(limiter.New(store, rate))
+
+  // setup the router
+	router := gin.Default()
+	router.ForwardedByClientIP = true
+	router.Use(middleware)
+
+  // initialize the routes
+	router.GET("/ping", handlerPing)
+	router.GET("/", handlerIndex)
+	router.POST("/pixel", handlerPixel)
+
+	return router
+}
+
+func main() {
   // start the server
 	r := setupRouter()
 	r.Run(":" + port)
