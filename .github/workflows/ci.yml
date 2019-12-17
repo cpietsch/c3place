@@ -30,6 +30,9 @@ jobs:
 
     - name: Test
       working-directory: backend
+      env:
+        REDIS_HOST: redis
+        REDIS_PORT: ${{ job.services.redis.ports[6379] }}
       run: go test -v .
 
     - name: Build

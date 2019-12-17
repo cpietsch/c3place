@@ -19,7 +19,9 @@ import (
 )
 
 var (
-	port = ":4000"
+	port      string
+	redisHost string
+	redisPort string
 
 	imageWidth  = 1000
 	imageHeight = 1000
@@ -31,12 +33,12 @@ var (
 
 func setupRouter() *gin.Engine {
 	rate := limiter.Rate{
-		Period: 1 * time.Minute,
-		Limit:  10,
+		Period: 1 * time.Second,
+		Limit:  100,
 	}
 
 	// Create a redis client.
-	option, err := redis.ParseURL("redis://localhost:6379/0")
+	option, err := redis.ParseURL("redis://" + redisHost + ":" + redisPort + "/0")
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
@@ -45,7 +47,7 @@ func setupRouter() *gin.Engine {
 
 	// Create a store with the redis client.
 	store, err := sredis.NewStoreWithOptions(client, limiter.StoreOptions{
-		Prefix:   "limiter_gin_example",
+		Prefix:   "limiter_gin",
 		MaxRetry: 3,
 	})
 	if err != nil {
@@ -68,8 +70,26 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
+	// get env vars
+	port = os.Getenv("PORT")
+	if port == "" {
+		port = "4000"
+	}
+	redisHost = os.Getenv("REDIS_HOST")
+	if redisHost == "" {
+		redisHost = "localhost"
+	}
+	redisPort = os.Getenv("REDIS_PORT")
+	if redisPort == "" {
+		redisPort = "6379"
+	}
+	log.Printf("HOST       : %s\n", port)
+	log.Printf("REDIS_HOST : %s\n", redisHost)
+	log.Printf("REDIS_PORT : %s\n", redisPort)
+
+  // start the server
 	r := setupRouter()
-	r.Run(port)
+	r.Run(":" + port)
 }
 
 func handlerPing(c *gin.Context) {
