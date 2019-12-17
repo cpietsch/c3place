@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+  "time"
 	"math/rand"
 	"net/http"
 
@@ -53,5 +54,6 @@ func noiseLine(server string, r, g, b uint8, x, y int) {
 		if err != nil {
 			log.Println("ERROR", err)
 		}
+    time.Sleep(100*time.Millisecond)
 	}
 }
