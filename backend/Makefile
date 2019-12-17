@@ -12,8 +12,13 @@ build:
 run: build
 	@./backend
 
+build-all: build-darwin build-linux build-windows
+
+build-darwin:
+	env GOOS=darwin GOARCH=amd64 go build -o backend-darwin-amd64
+
 build-linux:
 	env GOOS=linux GOARCH=amd64 go build -o backend-linux-amd64
 
 build-windows:
-	env GOOS=windows GOARCH=amd64 go build -o backend-windows-amd64
+	env GOOS=windows GOARCH=amd64 go build -o backend-windows-amd64.exe
