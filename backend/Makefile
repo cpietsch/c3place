@@ -4,10 +4,10 @@ fmt:
 	@go fmt
 
 test:
-	@go test -v
+	@GO111MODULE=on go test -v
 
 build:
-	@go build
+	@GO111MODULE=on go build
 
 run: build
 	@./backend

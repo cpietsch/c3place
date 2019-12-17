@@ -9,15 +9,13 @@ docker compose up
 build and start the api server
 
 ```sh
-export GO111MODULE=on
-go build
-./backend
+make run
 ```
 
 test the api server
 
 ```sh
-go test
+make test
 ```
 
 send a pixel with curl
