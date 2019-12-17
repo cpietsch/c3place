@@ -57,28 +57,29 @@ func setupRouter() *gin.Engine {
 	log.Printf("REDIS_PORT  : %s\n", redisPort)
 	log.Printf("RATELIMITER : %v\n", rateLimiter)
 
-	// Create a redis client.
-	client := redis.NewClient(&redis.Options{
-		Addr:     redisHost + ":" + redisPort,
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
-	log.Println("REDIS CLIENT:", client)
-	// Create a store with the redis client.
-	store, err := sredis.NewStoreWithOptions(client, limiter.StoreOptions{
-		Prefix:   "limiter_gin",
-		MaxRetry: 3,
-	})
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
 
 	// setup the router
 	router := gin.Default()
 
 	// Create a new middleware with the limiter instance.
 	if rateLimiter {
+    // Create a redis client.
+    client := redis.NewClient(&redis.Options{
+      Addr:     redisHost + ":" + redisPort,
+      Password: "", // no password set
+      DB:       0,  // use default DB
+    })
+    log.Println("REDIS CLIENT:", client)
+    // Create a store with the redis client.
+    store, err := sredis.NewStoreWithOptions(client, limiter.StoreOptions{
+      Prefix:   "limiter_gin",
+      MaxRetry: 3,
+    })
+    if err != nil {
+      log.Fatal(err)
+      os.Exit(1)
+    }
+
 		rate := limiter.Rate{
 			Period: 1 * time.Second,
 			Limit:  100,
@@ -92,6 +93,9 @@ func setupRouter() *gin.Engine {
 	router.GET("/ping", handlerPing)
 	router.GET("/", handlerIndex)
 	router.POST("/pixel", handlerPixel)
+
+	// initialize the static server
+	router.StaticFS("/timetravel", gin.Dir("./static", true))
 
 	return router
 }
