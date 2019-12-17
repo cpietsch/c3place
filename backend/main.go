@@ -11,6 +11,7 @@ import (
 	"os"
 	"time"
 
+  "github.com/cpietsch/c3place/backend/pixel"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"github.com/ulule/limiter/v3"
@@ -29,7 +30,7 @@ var (
 	upLeft      = image.Point{0, 0}
 	lowRight    = image.Point{imageWidth, imageHeight}
 
-	data []PostPixel
+	data []pixel.PostPixel
 )
 
 func setupRouter() *gin.Engine {
@@ -124,7 +125,7 @@ func handlerIndex(c *gin.Context) {
 }
 
 func handlerPixel(c *gin.Context) {
-	body := PostPixel{}
+	body := pixel.PostPixel{}
 
 	err := c.Bind(&body)
 	if err != nil {
@@ -132,7 +133,7 @@ func handlerPixel(c *gin.Context) {
 		return
 	}
 
-	err = ValidatePixel(body)
+	err = pixel.ValidatePixel(body, imageWidth, imageHeight)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

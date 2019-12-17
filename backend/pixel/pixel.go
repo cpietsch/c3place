@@ -1,4 +1,4 @@
-package main
+package pixel
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ type PostPixel struct {
 	Y int   `json:"y"`
 }
 
-func ValidatePixel(p PostPixel) error {
+func ValidatePixel(p PostPixel, imageWidth, imageHeight int) error {
 	if p.R < 0 || p.R > 255 {
 		return errors.New("red not valid")
 	}
