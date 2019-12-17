@@ -22,6 +22,8 @@ import (
 )
 
 var (
+  version = "0.1.0"
+
 	port        string
 	redisHost   string
 	redisPort   string
@@ -104,6 +106,8 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
+  log.Printf("c3place v%s\n\n", version)
+
 	go persistImages("./static")
 
 	// start the server
