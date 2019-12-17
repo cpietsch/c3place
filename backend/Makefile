@@ -12,7 +12,10 @@ build:
 run: build
 	@./backend
 
-build-all: build-darwin build-linux build-windows
+clean:
+	rm -rf backend*
+
+build-all: clean build-darwin build-linux build-windows
 
 build-darwin:
 	env GOOS=darwin GOARCH=amd64 go build -o backend-darwin-amd64
