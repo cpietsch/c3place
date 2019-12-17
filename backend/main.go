@@ -19,9 +19,10 @@ import (
 )
 
 var (
-	port      string
-	redisHost string
-	redisPort string
+	port        string
+	redisHost   string
+	redisPort   string
+	rateLimiter bool
 
 	imageWidth  = 1000
 	imageHeight = 1000
@@ -32,7 +33,7 @@ var (
 )
 
 func setupRouter() *gin.Engine {
-  // get env vars
+	// get env vars
 	port = os.Getenv("PORT")
 	if port == "" {
 		port = "4000"
@@ -45,9 +46,16 @@ func setupRouter() *gin.Engine {
 	if redisPort == "" {
 		redisPort = "6379"
 	}
-	log.Printf("HOST       : %s\n", port)
-	log.Printf("REDIS_HOST : %s\n", redisHost)
-	log.Printf("REDIS_PORT : %s\n", redisPort)
+	rateLimiterEnv := os.Getenv("RATELIMITER")
+	if rateLimiterEnv == "true" {
+		rateLimiter = true
+	} else {
+		rateLimiter = false
+	}
+	log.Printf("HOST        : %s\n", port)
+	log.Printf("REDIS_HOST  : %s\n", redisHost)
+	log.Printf("REDIS_PORT  : %s\n", redisPort)
+	log.Printf("RATELIMITER : %v\n", rateLimiter)
 
 	// Create a redis client.
 	client := redis.NewClient(&redis.Options{
@@ -55,7 +63,7 @@ func setupRouter() *gin.Engine {
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
-  log.Println("REDIS CLIENT:", client)
+	log.Println("REDIS CLIENT:", client)
 	// Create a store with the redis client.
 	store, err := sredis.NewStoreWithOptions(client, limiter.StoreOptions{
 		Prefix:   "limiter_gin",
@@ -66,19 +74,21 @@ func setupRouter() *gin.Engine {
 		os.Exit(1)
 	}
 
-	// Create a new middleware with the limiter instance.
-  rate := limiter.Rate{
-		Period: 1 * time.Second,
-		Limit:  100,
-	}
-	middleware := mgin.NewMiddleware(limiter.New(store, rate))
-
-  // setup the router
+	// setup the router
 	router := gin.Default()
-	router.ForwardedByClientIP = true
-	router.Use(middleware)
 
-  // initialize the routes
+	// Create a new middleware with the limiter instance.
+	if rateLimiter {
+		rate := limiter.Rate{
+			Period: 1 * time.Second,
+			Limit:  100,
+		}
+		middleware := mgin.NewMiddleware(limiter.New(store, rate))
+		router.ForwardedByClientIP = true
+		router.Use(middleware)
+	}
+
+	// initialize the routes
 	router.GET("/ping", handlerPing)
 	router.GET("/", handlerIndex)
 	router.POST("/pixel", handlerPixel)
@@ -87,7 +97,7 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
-  // start the server
+	// start the server
 	r := setupRouter()
 	r.Run(":" + port)
 }
