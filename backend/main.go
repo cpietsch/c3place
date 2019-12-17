@@ -9,9 +9,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
+	"strconv"
 	"time"
 
-  "github.com/cpietsch/c3place/backend/pixel"
+	"github.com/cpietsch/c3place/backend/pixel"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"github.com/ulule/limiter/v3"
@@ -30,7 +32,8 @@ var (
 	upLeft      = image.Point{0, 0}
 	lowRight    = image.Point{imageWidth, imageHeight}
 
-	data []pixel.PostPixel
+	data      []pixel.PostPixel
+	newPixels bool
 )
 
 func setupRouter() *gin.Engine {
@@ -58,28 +61,27 @@ func setupRouter() *gin.Engine {
 	log.Printf("REDIS_PORT  : %s\n", redisPort)
 	log.Printf("RATELIMITER : %v\n", rateLimiter)
 
-
 	// setup the router
 	router := gin.Default()
 
 	// Create a new middleware with the limiter instance.
 	if rateLimiter {
-    // Create a redis client.
-    client := redis.NewClient(&redis.Options{
-      Addr:     redisHost + ":" + redisPort,
-      Password: "", // no password set
-      DB:       0,  // use default DB
-    })
-    log.Println("REDIS CLIENT:", client)
-    // Create a store with the redis client.
-    store, err := sredis.NewStoreWithOptions(client, limiter.StoreOptions{
-      Prefix:   "limiter_gin",
-      MaxRetry: 3,
-    })
-    if err != nil {
-      log.Fatal(err)
-      os.Exit(1)
-    }
+		// Create a redis client.
+		client := redis.NewClient(&redis.Options{
+			Addr:     redisHost + ":" + redisPort,
+			Password: "", // no password set
+			DB:       0,  // use default DB
+		})
+		log.Println("REDIS CLIENT:", client)
+		// Create a store with the redis client.
+		store, err := sredis.NewStoreWithOptions(client, limiter.StoreOptions{
+			Prefix:   "limiter_gin",
+			MaxRetry: 3,
+		})
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(1)
+		}
 
 		rate := limiter.Rate{
 			Period: 1 * time.Second,
@@ -102,6 +104,8 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
+	go persistImages("./static")
+
 	// start the server
 	r := setupRouter()
 	r.Run(":" + port)
@@ -113,12 +117,7 @@ func handlerPing(c *gin.Context) {
 
 // https://yourbasic.org/golang/create-image/
 func handlerIndex(c *gin.Context) {
-	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
-
-	for i := 0; i < len(data); i++ {
-		img.Set(data[i].X, data[i].Y, color.RGBA{data[i].R, data[i].G, data[i].B, 0xff})
-	}
-
+	img := buildImage()
 	buf := new(bytes.Buffer)
 	png.Encode(buf, img)
 	c.Data(http.StatusOK, "image/png", buf.Bytes())
@@ -142,5 +141,30 @@ func handlerPixel(c *gin.Context) {
 	fmt.Println("==> Write pixel to data", body)
 	data = append(data, body)
 
+	newPixels = true
+
 	c.JSON(http.StatusCreated, gin.H{"status": "created", "pixel": body})
+}
+
+func buildImage() image.Image {
+	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
+	for i := 0; i < len(data); i++ {
+		img.Set(data[i].X, data[i].Y, color.RGBA{data[i].R, data[i].G, data[i].B, 0xff})
+	}
+	return img
+}
+
+func persistImages(dir string) {
+	if newPixels {
+		img := buildImage()
+		now := time.Now()
+		filename := path.Join(dir, strconv.Itoa(int(now.Unix()))+".png")
+		f, _ := os.Create(filename)
+		png.Encode(f, img)
+		log.Println("==> write png file", filename)
+		newPixels = false
+	}
+
+	time.Sleep(5 * time.Second)
+	persistImages(dir)
 }

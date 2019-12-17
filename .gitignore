@@ -106,3 +106,4 @@ dist
 *.zip
 
 backend/backend*
+backend/static/*
