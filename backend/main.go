@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -22,7 +23,7 @@ import (
 )
 
 var (
-  version = "0.1.0"
+	version = "0.1.0"
 
 	port        string
 	redisHost   string
@@ -33,6 +34,8 @@ var (
 	imageHeight = 1000
 	upLeft      = image.Point{0, 0}
 	lowRight    = image.Point{imageWidth, imageHeight}
+
+	indexHTML []byte
 
 	data      []pixel.PostPixel
 	newPixels bool
@@ -62,6 +65,14 @@ func setupRouter() *gin.Engine {
 	log.Printf("REDIS_HOST  : %s\n", redisHost)
 	log.Printf("REDIS_PORT  : %s\n", redisPort)
 	log.Printf("RATELIMITER : %v\n", rateLimiter)
+
+	// load the index html file
+	var err error
+	indexHTML, err = ioutil.ReadFile("./index.html")
+	if err != nil {
+		log.Println("ERROR", err)
+		os.Exit(1)
+	}
 
 	// setup the router
 	router := gin.Default()
@@ -97,6 +108,7 @@ func setupRouter() *gin.Engine {
 	// initialize the routes
 	router.GET("/ping", handlerPing)
 	router.GET("/", handlerIndex)
+	router.GET("/latest", handlerLatest)
 	router.POST("/pixel", handlerPixel)
 
 	// initialize the static server
@@ -106,7 +118,7 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
-  log.Printf("c3place v%s\n\n", version)
+	log.Printf("c3place v%s\n\n", version)
 
 	go persistImages("./static")
 
@@ -119,8 +131,12 @@ func handlerPing(c *gin.Context) {
 	c.String(http.StatusOK, "pong")
 }
 
-// https://yourbasic.org/golang/create-image/
 func handlerIndex(c *gin.Context) {
+	c.Data(http.StatusOK, "text/html", indexHTML)
+}
+
+// https://yourbasic.org/golang/create-image/
+func handlerLatest(c *gin.Context) {
 	img := buildImage()
 	buf := new(bytes.Buffer)
 	png.Encode(buf, img)
