@@ -50,12 +50,12 @@ func setupRouter() *gin.Engine {
 	log.Printf("REDIS_PORT : %s\n", redisPort)
 
 	// Create a redis client.
-	option, err := redis.ParseURL("redis://" + redisHost + ":" + redisPort + "/0")
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
-	client := redis.NewClient(option)
+	client := redis.NewClient(&redis.Options{
+		Addr:     redisHost + ":" + redisPort,
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+  log.Println("REDIS CLIENT:", client)
 	// Create a store with the redis client.
 	store, err := sredis.NewStoreWithOptions(client, limiter.StoreOptions{
 		Prefix:   "limiter_gin",
