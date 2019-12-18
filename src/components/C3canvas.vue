@@ -1,18 +1,12 @@
 <template>
   <div class="container" ref="container">
-    <canvas
-      ref="canvas"
-      @click="onClick"
-      width="1000"
-      height="1000"
-      :style="style"
-    ></canvas>
+    <canvas ref="canvas" @click="onClick" width="1000" height="1000" :style="style"></canvas>
   </div>
 </template>
 
 <script>
 import { loadImage } from "../utils.js";
-import { zoom, zoomIdentity } from "d3-zoom";
+import { zoom, zoomIdentity, zoomTransform } from "d3-zoom";
 import { select, event } from "d3-selection";
 
 const url = "http://localhost:4000/";
@@ -39,26 +33,29 @@ export default {
     zoom: function() {
       return zoom()
         .scaleExtent([1, 20])
-        .translateExtent([
-          [0, 0],
-          [1000, 1000]
-        ])
+        .translateExtent([[0, 0], [1000, 1000]])
         .duration(500)
         .on("zoom", this.zoomed);
     }
   },
   methods: {
     zoomed: function() {
-      //   console.log("zoomed", event.transform);
+      // console.log("zoomed", event.transform);
       const { x, y, k } = event.transform;
       this.x = x;
       this.y = y;
       this.k = k;
     },
     onClick: function(el) {
+      // console.log("onClickonClick", el);
+      const { x, y, k } = this;
+      const inverted = zoomIdentity
+        .translate(x, y)
+        .scale(k)
+        .invert([el.layerX, el.layerY]);
       const payload = {
-        x: el.layerX,
-        y: el.layerY,
+        x: Math.floor(inverted[0]),
+        y: Math.floor(inverted[1]),
         r: 255,
         g: 0,
         b: 0
@@ -66,7 +63,7 @@ export default {
 
       fetch(url + "pixel", {
         method: "POST",
-        mode: "no-cors",
+        // mode: "no-cors",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json"
@@ -85,10 +82,11 @@ export default {
       console.log("sending", payload);
     },
     loadImage() {
-      // const imageUrl = url + "latest"
-      const imageUrl = "canvas.png";
+      const imageUrl = url + "latest";
+      // const imageUrl = "canvas.png";
       loadImage(imageUrl).then(image => {
-        // console.log(image);
+        console.log(image);
+        this.context.clearRect(0, 0, 1000, 1000);
         this.context.drawImage(image, 0, 0, 1000, 1000);
       });
     }
@@ -123,6 +121,7 @@ canvas {
   height: 1000px;
   will-change: transform;
   transform-origin: 0 0;
-  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+  /* border: 1px solid #000; */
 }
 </style>
