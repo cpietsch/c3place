@@ -8,6 +8,7 @@
 import { loadImage } from "../utils.js";
 import { zoom, zoomIdentity, zoomTransform } from "d3-zoom";
 import { select, event, mouse } from "d3-selection";
+import { interval } from "d3-timer";
 
 const url = "http://localhost:4000/";
 
@@ -33,7 +34,10 @@ export default {
     zoom: function() {
       return zoom()
         .scaleExtent([1, 20])
-        .translateExtent([[0, 0], [1000, 1000]])
+        .translateExtent([
+          [0, 0],
+          [1000, 1000]
+        ])
         .duration(500)
         .on("zoom", this.zoomed);
     }
@@ -61,6 +65,9 @@ export default {
         b: 0
       };
 
+      this.context.fillStyle = "rgba(" + payload.r + "," + payload.g + "," + payload.b + ",1)";
+      this.context.fillRect(payload.x, payload.y, 1, 1);
+
       fetch(url + "pixel", {
         method: "POST",
         // mode: "no-cors",
@@ -76,7 +83,7 @@ export default {
             console.log(response.statusText);
           }
           // console.log("fetch", response);
-          this.loadImage();
+          // this.loadImage();
         });
 
       console.log("sending", payload);
@@ -85,14 +92,14 @@ export default {
       const imageUrl = url + "latest?" + Date.now();
       // const imageUrl = "canvas.png";
       loadImage(imageUrl).then(image => {
-        // console.log(image);
-        this.context.clearRect(0, 0, 1000, 1000);
+        console.log(image);
+        // this.context.clearRect(0, 0, 1000, 1000);
         this.context.drawImage(image, 0, 0, 1000, 1000);
       });
     }
   },
   mounted: function() {
-    this.loadImage();
+    interval(this.loadImage, 1000);
     this.container = select(this.$refs.container).call(this.zoom);
     // .on("click", this.onClick);
     this.zoom.scaleTo(this.container, 1);
