@@ -13,6 +13,7 @@ import { interval } from "d3-timer";
 const url = "http://localhost:4000/";
 
 export default {
+  props: ["color"],
   data: function() {
     return {
       x: 0,
@@ -51,18 +52,21 @@ export default {
       this.k = k;
     },
     onClick: function(el) {
-      console.log("onClickonClick", el);
+      console.log("onClick", el);
       const { x, y, k } = this;
+      const [r, g, b] = this.color;
+      const paddingLeft = 40; // todo
       const inverted = zoomIdentity
         .translate(x, y)
         .scale(k)
-        .invert([el.x, el.y]);
+        .invert([el.x - paddingLeft, el.y]);
+
       const payload = {
         x: Math.floor(inverted[0]),
         y: Math.floor(inverted[1]),
-        r: 255,
-        g: 0,
-        b: 0
+        r,
+        g,
+        b
       };
 
       this.context.fillStyle = "rgba(" + payload.r + "," + payload.g + "," + payload.b + ",1)";
@@ -92,7 +96,7 @@ export default {
       const imageUrl = url + "latest?" + Date.now();
       // const imageUrl = "canvas.png";
       loadImage(imageUrl).then(image => {
-        console.log(image);
+        // console.log(image);
         // this.context.clearRect(0, 0, 1000, 1000);
         this.context.drawImage(image, 0, 0, 1000, 1000);
       });
@@ -118,8 +122,10 @@ export default {
 
 <style scoped>
 .container {
-  position: relative;
-  width: 100%;
+  position: absolute;
+  left: 40px;
+  top: 0px;
+  width: calc(100% - 40px);
   height: 100vh;
   overflow: hidden;
 }
