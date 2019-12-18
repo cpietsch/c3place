@@ -7,7 +7,7 @@
 <script>
 import { loadImage } from "../utils.js";
 import { zoom, zoomIdentity, zoomTransform } from "d3-zoom";
-import { select, event } from "d3-selection";
+import { select, event, mouse } from "d3-selection";
 
 const url = "http://localhost:4000/";
 
@@ -47,12 +47,12 @@ export default {
       this.k = k;
     },
     onClick: function(el) {
-      // console.log("onClickonClick", el);
+      console.log("onClickonClick", el);
       const { x, y, k } = this;
       const inverted = zoomIdentity
         .translate(x, y)
         .scale(k)
-        .invert([el.layerX, el.layerY]);
+        .invert([el.x, el.y]);
       const payload = {
         x: Math.floor(inverted[0]),
         y: Math.floor(inverted[1]),
@@ -75,17 +75,17 @@ export default {
           if (!response.ok) {
             console.log(response.statusText);
           }
-          console.log("fetch", response);
+          // console.log("fetch", response);
           this.loadImage();
         });
 
       console.log("sending", payload);
     },
     loadImage() {
-      const imageUrl = url + "latest";
+      const imageUrl = url + "latest?" + Date.now();
       // const imageUrl = "canvas.png";
       loadImage(imageUrl).then(image => {
-        console.log(image);
+        // console.log(image);
         this.context.clearRect(0, 0, 1000, 1000);
         this.context.drawImage(image, 0, 0, 1000, 1000);
       });
@@ -94,6 +94,7 @@ export default {
   mounted: function() {
     this.loadImage();
     this.container = select(this.$refs.container).call(this.zoom);
+    // .on("click", this.onClick);
     this.zoom.scaleTo(this.container, 1);
 
     // this.container
