@@ -67,4 +67,4 @@ jobs:
     
     - name: Deploy
       working-directory: frontend
-      run: npm run deploy
+      run: gh-pages -d dist
