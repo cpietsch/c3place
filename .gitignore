@@ -19,3 +19,11 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# TernJS port file
+.tern-port
+
+# backend
+*.zip
+backend/backend*
+backend/static/*

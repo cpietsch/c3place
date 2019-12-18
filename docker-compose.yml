@@ -1,0 +1,10 @@
+version: "3"
+services:
+  c3place_redis:
+    image: redis
+    ports:
+      - "6379:6379"
+  c3place_backend:
+    build: .
+    ports:
+      - "4000:4000"
