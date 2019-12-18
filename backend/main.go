@@ -17,10 +17,10 @@ import (
 	"github.com/cpietsch/c3place/backend/pixel"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
+	cors "github.com/rs/cors/wrapper/gin"
 	"github.com/ulule/limiter/v3"
 	mgin "github.com/ulule/limiter/v3/drivers/middleware/gin"
 	sredis "github.com/ulule/limiter/v3/drivers/store/redis"
-	cors "github.com/rs/cors/wrapper/gin"
 )
 
 var (
@@ -38,8 +38,9 @@ var (
 
 	indexHTML []byte
 
-	data      []pixel.PostPixel
-	newPixels bool
+	data        []pixel.PostPixel
+	newPixels   bool
+	imageBuffer = new(bytes.Buffer)
 )
 
 func setupRouter() *gin.Engine {
@@ -138,10 +139,7 @@ func handlerIndex(c *gin.Context) {
 
 // https://yourbasic.org/golang/create-image/
 func handlerLatest(c *gin.Context) {
-	img := buildImage()
-	buf := new(bytes.Buffer)
-	png.Encode(buf, img)
-	c.Data(http.StatusOK, "image/png", buf.Bytes())
+	c.Data(http.StatusOK, "image/png", imageBuffer.Bytes())
 }
 
 func handlerPixel(c *gin.Context) {
@@ -182,6 +180,7 @@ func persistImages(dir string) {
 		filename := path.Join(dir, strconv.Itoa(int(now.Unix()))+".png")
 		f, _ := os.Create(filename)
 		png.Encode(f, img)
+		png.Encode(imageBuffer, img)
 		log.Println("==> write png file", filename)
 		newPixels = false
 	}
