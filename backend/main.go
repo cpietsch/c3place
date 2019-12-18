@@ -20,6 +20,7 @@ import (
 	"github.com/ulule/limiter/v3"
 	mgin "github.com/ulule/limiter/v3/drivers/middleware/gin"
 	sredis "github.com/ulule/limiter/v3/drivers/store/redis"
+	cors "github.com/rs/cors/wrapper/gin"
 )
 
 var (
@@ -71,12 +72,12 @@ func setupRouter() *gin.Engine {
 	indexHTML, err = ioutil.ReadFile("./index.html")
 	if err != nil {
 		log.Println("ERROR", err)
-		os.Exit(1)
+		// os.Exit(1)
 	}
 
 	// setup the router
 	router := gin.Default()
-
+	router.Use(cors.Default())
 	// Create a new middleware with the limiter instance.
 	if rateLimiter {
 		// Create a redis client.
