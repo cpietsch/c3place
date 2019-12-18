@@ -11,7 +11,9 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/cpietsch/c3place/backend/pixel"
@@ -122,11 +124,64 @@ func setupRouter() *gin.Engine {
 func main() {
 	log.Printf("c3place v%s\n\n", version)
 
+	var latestImage = getLatestImageFile()
+	loadPngToData(latestImage)
+
 	go persistImages("./static")
 
 	// start the server
 	r := setupRouter()
 	r.Run(":" + port)
+}
+
+func loadPngToData(filename string) {
+	existingImageFile, err := os.Open("./static/" + filename)
+	if err != nil {
+		// Handle error
+	}
+	defer existingImageFile.Close()
+	loadedImage, err := png.Decode(existingImageFile)
+	if err != nil {
+		// Handle error
+	}
+	// fmt.Println(loadedImage)
+	// bounds := loadedImage.Bounds()
+	// w, h := bounds.Max.X, bounds.Max.Y
+	w, h := imageWidth, imageHeight
+	for x := 0; x < w; x++ {
+		for y := 0; y < h; y++ {
+			color := loadedImage.At(x, y)
+			r, g, b, _ := color.RGBA()
+			pixel := pixel.PostPixel{R: uint8(r), G: uint8(g), B: uint8(b), X: x, Y: y}
+			data = append(data, pixel)
+		}
+	}
+	newPixels = true
+}
+
+func FilenameWithoutExtension(fn string) string {
+	return strings.TrimSuffix(fn, path.Ext(fn))
+}
+
+func getLatestImageFile() string {
+	files, _ := ioutil.ReadDir("./static")
+	var newestFile string
+	var newestTime int = 0
+	for _, f := range files {
+		if f.Mode().IsRegular() {
+			if filepath.Ext(f.Name()) == ".png" {
+				currTime, err := strconv.Atoi(FilenameWithoutExtension(f.Name()))
+				if err != nil {
+					log.Printf("error loading %s\n", f.Name())
+				} else if currTime > newestTime {
+					newestTime = currTime
+					newestFile = f.Name()
+				}
+			}
+		}
+	}
+	log.Printf("newestFile %s\n", newestFile)
+	return newestFile
 }
 
 func handlerPing(c *gin.Context) {
