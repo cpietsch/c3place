@@ -38,3 +38,29 @@ jobs:
     - name: Build
       working-directory: backend
       run: go build -v .
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set Node.js 10.x
+      uses: actions/setup-node@master
+      with:
+        node-version: 10.x
+      id: nodejs
+
+    - name: Check out code
+      uses: actions/checkout@v1
+
+    - name: Get dependencies
+      working-directory: frontend
+      run: npm install
+
+    # - name: Lint
+    #   working-directory: frontend
+    #   run: npm run lint
+
+    - name: Build
+      working-directory: frontend
+      run: npm run build
