@@ -1,12 +1,19 @@
 package main
 
 import (
+	"bytes"
+	"image/png"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-// https://yourbasic.org/golang/create-image/
 func handlerLatest(c *gin.Context) {
-	c.Data(http.StatusOK, "image/png", imageBuffer.Bytes())
+	if newPixels {
+		img := buildImage()
+		buf := new(bytes.Buffer)
+		png.Encode(buf, img)
+		imageCache = buf.Bytes()
+	}
+	c.Data(http.StatusOK, "image/png", imageCache)
 }
