@@ -35,11 +35,8 @@ export default {
     },
     zoom: function() {
       return zoom()
-        .scaleExtent([1, 20])
-        .translateExtent([
-          [0, 0],
-          [1000, 1000]
-        ])
+        .scaleExtent([1, 30])
+        .translateExtent([[0, 0], [1000, 1000]])
         .duration(500)
         .on("zoom", this.zoomed);
     }
@@ -70,7 +67,8 @@ export default {
         b
       };
 
-      this.context.fillStyle = "rgba(" + payload.r + "," + payload.g + "," + payload.b + ",1)";
+      this.context.fillStyle =
+        "rgba(" + payload.r + "," + payload.g + "," + payload.b + ",1)";
       this.context.fillRect(payload.x, payload.y, 1, 1);
 
       fetch(url + "pixel", {
