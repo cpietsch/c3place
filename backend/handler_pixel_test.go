@@ -10,6 +10,7 @@ import (
 )
 
 func TestHandlerPixel(t *testing.T) {
+	setupData()
 	router := setupRouter()
 
 	t.Run("valid", func(t *testing.T) {

@@ -27,6 +27,17 @@ var (
 func main() {
 	log.Printf("c3place v%s\n\n", version)
 
+	setupData()
+
+	// concurrent persist images
+	go persistImages(imageDir)
+
+	// start the server
+	r := setupRouter()
+	r.Run(":" + cfg.Port)
+}
+
+func setupData() {
 	// load the last image and add data to the data array
 	latestImage, err := utils.GetLatestImageFilename(imageDir)
 	if err != nil {
@@ -36,13 +47,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	// concurrent persist images
-	go persistImages(imageDir)
-
-	// start the server
-	r := setupRouter()
-	r.Run(":" + cfg.Port)
 }
 
 func buildImage() image.Image {
