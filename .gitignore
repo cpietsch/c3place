@@ -28,6 +28,7 @@ yarn-error.log*
 backend/backend*
 backend/coverage.out
 backend/static/*
+!backend/static/1.png
 
 # frontend
 frontend/dist
