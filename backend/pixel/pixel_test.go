@@ -19,22 +19,22 @@ func TestValidatePixel(t *testing.T) {
 			data PostPixel
 			err  error
 		}{
-      // {
+			// {
 			// 	desc: "invalid r",
 			// 	data: PostPixel{R: 500, G: 255, B: 255, X: 0, Y: 0},
 			// 	err:  ErrRedNotValid,
 			// },
-      // {
+			// {
 			// 	desc: "invalid g",
 			// 	data: PostPixel{R: 255, G: 500, B: 255, X: 0, Y: 0},
 			// 	err:  ErrGreenNotValid,
 			// },
-      // {
+			// {
 			// 	desc: "invalid b",
 			// 	data: PostPixel{R: 255, G: 255, B: 500, X: 0, Y: 0},
 			// 	err:  ErrBlueNotValid,
 			// },
-      {
+			{
 				desc: "invalid x",
 				data: PostPixel{R: 255, G: 255, B: 255, X: -100, Y: 0},
 				err:  ErrXNotValid,

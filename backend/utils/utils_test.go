@@ -30,11 +30,13 @@ func TestLoadPngToColorArray(t *testing.T) {
 	t.Run("without error", func(t *testing.T) {
 		data, err := LoadPngToColorArray("./fixtures/3.png", 2, 2)
 		assert.Nil(t, err)
-		assert.Len(t, data, 4)
-		assert.Equal(t, color.RGBA{255, 0, 0, 0xff}, data[0])
-		assert.Equal(t, color.RGBA{0, 0, 255, 0xff}, data[1])
-		assert.Equal(t, color.RGBA{0, 255, 0, 0xff}, data[2])
-		assert.Equal(t, color.RGBA{0, 0, 0, 0xff}, data[3])
+		assert.Len(t, data, 2)
+		assert.Len(t, data[0], 2)
+		assert.Len(t, data[1], 2)
+		assert.Equal(t, color.RGBA{255, 0, 0, 0xff}, data[0][0])
+		assert.Equal(t, color.RGBA{0, 255, 0, 0xff}, data[1][0])
+		assert.Equal(t, color.RGBA{0, 0, 255, 0xff}, data[0][1])
+		assert.Equal(t, color.RGBA{0, 0, 0, 0xff}, data[1][1])
 	})
 
 	t.Run("with error", func(t *testing.T) {

@@ -39,9 +39,14 @@ func GetLatestImageFilename(dir string) (string, error) {
 	return newestFile, nil
 }
 
-func LoadPngToColorArray(filename string, w, h int) ([]color.RGBA, error) {
-	data := make([]color.RGBA, 0)
+func LoadPngToColorArray(filename string, w, h int) ([][]color.RGBA, error) {
+	// initialize the data array
+	data := make([][]color.RGBA, w)
+	for i := range data {
+		data[i] = make([]color.RGBA, h)
+	}
 
+	// read the file
 	existingImageFile, err := os.Open(filename)
 	if err != nil {
 		return data, err
@@ -52,11 +57,12 @@ func LoadPngToColorArray(filename string, w, h int) ([]color.RGBA, error) {
 		return data, err
 	}
 
+	// set the pixel color to teh data array
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
 			c := loadedImage.At(x, y)
 			r, g, b, a := c.RGBA()
-			data = append(data, color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)})
+			data[x][y] = color.RGBA{uint8(r), uint8(g), uint8(b), uint8(a)}
 		}
 	}
 

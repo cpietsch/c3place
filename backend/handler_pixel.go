@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"net/http"
 
 	"github.com/cpietsch/c3place/backend/pixel"
@@ -23,8 +24,8 @@ func handlerPixel(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("==> Write pixel to data", body)
-	data = append(data, body)
+	fmt.Printf("==> Write pixel pos (%v, %v) color (%v, %v, %v)\n", body.X, body.Y, body.R, body.G, body.B)
+	data[body.X][body.Y] = color.RGBA{uint8(body.R), uint8(body.G), uint8(body.B), 0xff}
 
 	newPixels = true
 
