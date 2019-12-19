@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetPingRoute(t *testing.T) {
+func TestHandlerPing(t *testing.T) {
 	router := setupRouter()
 
 	w := httptest.NewRecorder()

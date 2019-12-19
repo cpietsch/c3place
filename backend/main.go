@@ -2,17 +2,16 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"log"
-	"net/http"
 	"os"
 	"path"
 	"strconv"
 	"time"
 
+	"github.com/cpietsch/c3place/backend/config"
 	"github.com/cpietsch/c3place/backend/pixel"
 	"github.com/cpietsch/c3place/backend/utils"
 	"github.com/gin-gonic/gin"
@@ -26,10 +25,7 @@ import (
 var (
 	version = "0.1.1"
 
-	port        string
-	redisHost   string
-	redisPort   string
-	rateLimiter bool
+	cfg = config.Config{}
 
 	imageWidth  = 1000
 	imageHeight = 1000
@@ -42,38 +38,17 @@ var (
 )
 
 func setupRouter() *gin.Engine {
-	// get env vars
-	port = os.Getenv("PORT")
-	if port == "" {
-		port = "4000"
-	}
-	redisHost = os.Getenv("REDIS_HOST")
-	if redisHost == "" {
-		redisHost = "localhost"
-	}
-	redisPort = os.Getenv("REDIS_PORT")
-	if redisPort == "" {
-		redisPort = "6379"
-	}
-	rateLimiterEnv := os.Getenv("RATELIMITER")
-	if rateLimiterEnv == "true" {
-		rateLimiter = true
-	} else {
-		rateLimiter = false
-	}
-	log.Printf("HOST        : %s\n", port)
-	log.Printf("REDIS_HOST  : %s\n", redisHost)
-	log.Printf("REDIS_PORT  : %s\n", redisPort)
-	log.Printf("RATELIMITER : %v\n", rateLimiter)
+	cfg = config.ConfigInit()
+	cfg.Log()
 
 	// setup the router
 	router := gin.Default()
 	router.Use(cors.Default())
 	// Create a new middleware with the limiter instance.
-	if rateLimiter {
+	if cfg.RateLimiter {
 		// Create a redis client.
 		client := redis.NewClient(&redis.Options{
-			Addr:     redisHost + ":" + redisPort,
+			Addr:     cfg.RedisHost + ":" + cfg.RedisPort,
 			Password: "", // no password set
 			DB:       0,  // use default DB
 		})
@@ -122,7 +97,7 @@ func main() {
 
 	// start the server
 	r := setupRouter()
-	r.Run(":" + port)
+	r.Run(":" + cfg.Port)
 }
 
 func loadPngToData(filename string) {
@@ -148,34 +123,6 @@ func loadPngToData(filename string) {
 		}
 	}
 	newPixels = true
-}
-
-// https://yourbasic.org/golang/create-image/
-func handlerLatest(c *gin.Context) {
-	c.Data(http.StatusOK, "image/png", imageBuffer.Bytes())
-}
-
-func handlerPixel(c *gin.Context) {
-	body := pixel.PostPixel{}
-
-	err := c.Bind(&body)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid post body"})
-		return
-	}
-
-	err = pixel.ValidatePixel(body, imageWidth, imageHeight)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	fmt.Println("==> Write pixel to data", body)
-	data = append(data, body)
-
-	newPixels = true
-
-	c.JSON(http.StatusCreated, gin.H{"status": "created", "pixel": body})
 }
 
 func buildImage() image.Image {
