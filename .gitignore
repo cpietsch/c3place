@@ -26,6 +26,7 @@ yarn-error.log*
 # backend
 *.zip
 backend/backend*
+backend/coverage.out
 backend/static/*
 
 # frontend

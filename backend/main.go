@@ -23,8 +23,6 @@ import (
 )
 
 var (
-	version = "0.1.1"
-
 	cfg = config.Config{}
 
 	imageWidth  = 1000

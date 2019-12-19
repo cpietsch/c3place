@@ -33,11 +33,11 @@ jobs:
       env:
         REDIS_HOST: redis
         REDIS_PORT: ${{ job.services.redis.ports[6379] }}
-      run: go test -v .
+      run: make test
 
     - name: Build
       working-directory: backend
-      run: go build -v .
+      run: make build
 
   frontend:
     name: Frontend
