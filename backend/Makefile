@@ -1,10 +1,10 @@
 all: fmt test build
 
 fmt:
-	@go fmt
+	@go fmt ./...
 
 test:
-	@GO111MODULE=on go test -v
+	@GO111MODULE=on go test -v ./...
 
 build:
 	@GO111MODULE=on go build

@@ -11,12 +11,11 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"path/filepath"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/cpietsch/c3place/backend/pixel"
+	"github.com/cpietsch/c3place/backend/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	cors "github.com/rs/cors/wrapper/gin"
@@ -124,7 +123,11 @@ func setupRouter() *gin.Engine {
 func main() {
 	log.Printf("c3place v%s\n\n", version)
 
-	var latestImage = getLatestImageFile()
+	latestImage, err := utils.GetLatestImageFilename("./static")
+	if err != nil {
+		panic(err)
+	}
+
 	loadPngToData(latestImage)
 
 	go persistImages("./static")
@@ -157,31 +160,6 @@ func loadPngToData(filename string) {
 		}
 	}
 	newPixels = true
-}
-
-func FilenameWithoutExtension(fn string) string {
-	return strings.TrimSuffix(fn, path.Ext(fn))
-}
-
-func getLatestImageFile() string {
-	files, _ := ioutil.ReadDir("./static")
-	var newestFile string
-	var newestTime int = 0
-	for _, f := range files {
-		if f.Mode().IsRegular() {
-			if filepath.Ext(f.Name()) == ".png" {
-				currTime, err := strconv.Atoi(FilenameWithoutExtension(f.Name()))
-				if err != nil {
-					log.Printf("error loading %s\n", f.Name())
-				} else if currTime > newestTime {
-					newestTime = currTime
-					newestFile = f.Name()
-				}
-			}
-		}
-	}
-	log.Printf("newestFile %s\n", newestFile)
-	return newestFile
 }
 
 func handlerPing(c *gin.Context) {
