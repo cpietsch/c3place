@@ -11,7 +11,7 @@ import { select, event, mouse } from "d3-selection";
 import { interval } from "d3-timer";
 
 // const url = "http://localhost:4000/";
-const url = "http://bd0a681b.ngrok.io/";
+const url = "https://bd0a681b.ngrok.io/";
 
 export default {
   props: ["color"],
