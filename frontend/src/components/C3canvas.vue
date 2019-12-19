@@ -10,7 +10,8 @@ import { zoom, zoomIdentity, zoomTransform } from "d3-zoom";
 import { select, event, mouse } from "d3-selection";
 import { interval } from "d3-timer";
 
-const url = "http://localhost:4000/";
+// const url = "http://localhost:4000/";
+const url = "http://bd0a681b.ngrok.io/";
 
 export default {
   props: ["color"],
@@ -35,10 +36,7 @@ export default {
     zoom: function() {
       return zoom()
         .scaleExtent([1, 20])
-        .translateExtent([
-          [0, 0],
-          [1000, 1000]
-        ])
+        .translateExtent([[0, 0], [1000, 1000]])
         .duration(500)
         .on("zoom", this.zoomed);
     }
@@ -69,7 +67,8 @@ export default {
         b
       };
 
-      this.context.fillStyle = "rgba(" + payload.r + "," + payload.g + "," + payload.b + ",1)";
+      this.context.fillStyle =
+        "rgba(" + payload.r + "," + payload.g + "," + payload.b + ",1)";
       this.context.fillRect(payload.x, payload.y, 1, 1);
 
       fetch(url + "pixel", {
@@ -103,7 +102,7 @@ export default {
     }
   },
   mounted: function() {
-    interval(this.loadImage, 1000);
+    interval(this.loadImage, 5000);
     this.container = select(this.$refs.container).call(this.zoom);
     // .on("click", this.onClick);
     this.zoom.scaleTo(this.container, 1);
