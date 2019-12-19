@@ -9,28 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetPingRoute(t *testing.T) {
-	router := setupRouter()
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/ping", nil)
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Equal(t, "pong", w.Body.String())
-}
-
-func TestGetIndexRoute(t *testing.T) {
-	router := setupRouter()
-
-	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/", nil)
-	router.ServeHTTP(w, req)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-}
-
-func TestPostPixelRoute(t *testing.T) {
+func TestHandlerPixel(t *testing.T) {
+	setupData()
 	router := setupRouter()
 
 	t.Run("valid", func(t *testing.T) {

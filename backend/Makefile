@@ -1,10 +1,14 @@
 all: fmt test build
 
 fmt:
-	@go fmt
+	@go fmt ./...
 
 test:
-	@GO111MODULE=on go test -v
+	@GO111MODULE=on go test -cover ./...
+
+test-cov:
+	@GO111MODULE=on go test -coverprofile=coverage.out ./...
+	@go tool cover -html=coverage.out
 
 build:
 	@GO111MODULE=on go build
