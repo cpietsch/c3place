@@ -6,7 +6,6 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -37,8 +36,6 @@ var (
 	upLeft      = image.Point{0, 0}
 	lowRight    = image.Point{imageWidth, imageHeight}
 
-	indexHTML []byte
-
 	data        []pixel.PostPixel
 	newPixels   bool
 	imageBuffer = new(bytes.Buffer)
@@ -68,14 +65,6 @@ func setupRouter() *gin.Engine {
 	log.Printf("REDIS_HOST  : %s\n", redisHost)
 	log.Printf("REDIS_PORT  : %s\n", redisPort)
 	log.Printf("RATELIMITER : %v\n", rateLimiter)
-
-	// load the index html file
-	var err error
-	indexHTML, err = ioutil.ReadFile("./index.html")
-	if err != nil {
-		log.Println("ERROR", err)
-		// os.Exit(1)
-	}
 
 	// setup the router
 	router := gin.Default()
@@ -110,7 +99,6 @@ func setupRouter() *gin.Engine {
 
 	// initialize the routes
 	router.GET("/ping", handlerPing)
-	router.GET("/", handlerIndex)
 	router.GET("/latest", handlerLatest)
 	router.POST("/pixel", handlerPixel)
 
@@ -160,14 +148,6 @@ func loadPngToData(filename string) {
 		}
 	}
 	newPixels = true
-}
-
-func handlerPing(c *gin.Context) {
-	c.String(http.StatusOK, "pong")
-}
-
-func handlerIndex(c *gin.Context) {
-	c.Data(http.StatusOK, "text/html", indexHTML)
 }
 
 // https://yourbasic.org/golang/create-image/
