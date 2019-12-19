@@ -13,7 +13,7 @@ export default {
   name: "app",
   data: function() {
     return {
-      color: [0, 0, 0]
+      color: [255, 0, 0]
     };
   },
   methods: {
