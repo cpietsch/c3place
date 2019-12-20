@@ -12,6 +12,7 @@ import (
 	"github.com/ulule/limiter/v3"
 	mgin "github.com/ulule/limiter/v3/drivers/middleware/gin"
 	sredis "github.com/ulule/limiter/v3/drivers/store/redis"
+	"github.com/zsais/go-gin-prometheus"
 )
 
 func setupRouter() *gin.Engine {
@@ -48,6 +49,9 @@ func setupRouter() *gin.Engine {
 		router.ForwardedByClientIP = true
 		router.Use(middleware)
 	}
+
+	prometheus := ginprometheus.NewPrometheus("gin")
+	prometheus.Use(router)
 
 	// initialize the routes
 	router.GET("/ping", handlerPing)

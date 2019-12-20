@@ -1,10 +1,54 @@
-version: "3"
+# version: "3"
+# services:
+#   c3place_redis:
+#     image: redis
+#     ports:
+#       - "6379:6379"
+#   c3place_backend:
+#     build: .
+#     ports:
+#       - "4000:4000"
+
+version: '2'
 services:
-  c3place_redis:
-    image: redis
+
+  prometheus:
+      image: prom/prometheus:v2.15.0-rc.0
+      volumes:
+        - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      command:
+        - '--config.file=/etc/prometheus/prometheus.yml'
+      ports:
+        - '9090:9090'
+      volumes:
+        - prometheus_data:/prometheus
+      networks:
+        - monitor-backend-dev
+
+  node-exporter:
+    image: prom/node-exporter:v0.18.1
     ports:
-      - "6379:6379"
-  c3place_backend:
-    build: .
+      - '9100:9100'
+    networks:
+      - monitor-backend-dev
+
+  grafana:
+    image: grafana/grafana:6.5.2-ubuntu
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=pass
+    depends_on:
+      - prometheus
     ports:
-      - "4000:4000"
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - monitor-backend-dev
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
+
+networks:
+  monitor-backend-dev:
+    driver: bridge
