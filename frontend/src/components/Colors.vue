@@ -6,6 +6,7 @@
 
 <script>
 const palette = [
+  [0, 0, 0], // blasck
   [255, 255, 255], // white
   [228, 228, 228], // light grey
   [136, 136, 136], // grey
