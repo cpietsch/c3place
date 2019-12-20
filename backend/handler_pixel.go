@@ -9,6 +9,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+/**
+ * @api {post} /pixel
+ * @apiDescription
+ * create a new pixel
+ * @apiExample Example usage:
+ * curl -XPOST http://localhost:4000/ping
+ * @apiSuccessExample {json} Success
+{
+	"status": "created",
+	"pixel": {
+		"x": 10,
+		"y": 20,
+		"r": 255,
+		"g": 0,
+		"b": 0
+	}
+}
+*/
 func handlerPixel(c *gin.Context) {
 	body := pixel.PostPixel{}
 

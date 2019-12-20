@@ -1,0 +1,9 @@
+{
+  "name": "c3place",
+  "version": "0.2.2",
+  "description": "c3place api",
+  "template": {
+    "forceLanguage": "en"
+  },
+  "url" : "http://localhost:4000"
+}
