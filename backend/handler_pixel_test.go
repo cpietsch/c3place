@@ -23,7 +23,7 @@ func TestHandlerPixel(t *testing.T) {
 		assert.Equal(t, `{"pixel":{"r":255,"g":0,"b":0,"x":100,"y":100},"status":"created"}`+"\n", w.Body.String())
 	})
 
-	t.Run("invalid", func(t *testing.T) {
+	t.Run("invalid post body", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("POST", "/pixel", strings.NewReader(`{"r": 500}`))
 		req.Header.Add("Content-Type", "application/json")
@@ -31,5 +31,15 @@ func TestHandlerPixel(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 		assert.Equal(t, `{"error":"invalid post body"}`+"\n", w.Body.String())
+	})
+
+	t.Run("invalid x not valid", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/pixel", strings.NewReader(`{"x": -500, "y": 1500}`))
+		req.Header.Add("Content-Type", "application/json")
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, `{"error":"x not valid"}`+"\n", w.Body.String())
 	})
 }
