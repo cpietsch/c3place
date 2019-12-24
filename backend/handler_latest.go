@@ -10,10 +10,15 @@ import (
 
 func handlerLatest(c *gin.Context) {
 	if newPixels {
-		img := buildImage()
+		img, imgGroundplan := buildImage()
+
 		buf := new(bytes.Buffer)
 		png.Encode(buf, img)
-		imageCache = buf.Bytes()
+		cacheImage = buf.Bytes()
+
+		bufGroundplan := new(bytes.Buffer)
+		png.Encode(bufGroundplan, imgGroundplan)
+		cacheImageGroundplate = bufGroundplan.Bytes()
 	}
-	c.Data(http.StatusOK, "image/png", imageCache)
+	c.Data(http.StatusOK, "image/png", cacheImageGroundplate)
 }

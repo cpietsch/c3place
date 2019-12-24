@@ -19,10 +19,11 @@ var (
 	cfg = config.Config{}
 
 	// in-mem data
-	data           [][]color.RGBA
-	dataGroundplan [][]color.RGBA
-	newPixels      bool
-	imageCache     []byte
+	data                  [][]color.RGBA
+	dataGroundplan        [][]color.RGBA
+	newPixels             bool
+	cacheImage            []byte
+	cacheImageGroundplate []byte
 )
 
 func main() {
@@ -57,35 +58,38 @@ func setupData() {
 	}
 }
 
-func buildImage() image.Image {
+func buildImage() (image.Image, image.Image) {
 	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
+	imgGround := image.NewRGBA(image.Rectangle{upLeft, lowRight})
 	for x := 0; x < imageWidth; x++ {
 		for y := 0; y < imageHeight; y++ {
+			img.Set(x, y, data[x][y])
+
 			// draw the groundplan
 			if dataGroundplan[x][y].R == 255 &&
 				dataGroundplan[x][y].G == 255 &&
 				dataGroundplan[x][y].B == 255 {
-				img.Set(x, y, colorGroundplan)
+				imgGround.Set(x, y, colorGroundplan)
 			} else {
 				// draw the pixels
-				img.Set(x, y, data[x][y])
+				imgGround.Set(x, y, data[x][y])
 			}
 		}
 	}
 
-	return img
+	return img, imgGround
 }
 
 func persistImages(dir string) {
 	if newPixels {
-		img := buildImage()
+		img, _ := buildImage()
 		buf := new(bytes.Buffer)
 		png.Encode(buf, img)
-		imageCache = buf.Bytes()
+		cacheImage = buf.Bytes()
 
 		now := time.Now()
 		filename := path.Join(dir, strconv.Itoa(int(now.Unix()))+".png")
-		err := ioutil.WriteFile(filename, imageCache, 0755)
+		err := ioutil.WriteFile(filename, cacheImage, 0755)
 		if err != nil {
 			log.Println("Error write png", err)
 		}
