@@ -2,6 +2,7 @@ package main
 
 import (
 	"image"
+	"image/color"
 )
 
 const (
@@ -11,6 +12,7 @@ const (
 )
 
 var (
-	upLeft   = image.Point{0, 0}
-	lowRight = image.Point{imageWidth, imageHeight}
+	upLeft          = image.Point{0, 0}
+	lowRight        = image.Point{imageWidth, imageHeight}
+	colorGroundplan = color.RGBA{0, 255, 0, 0xff}
 )

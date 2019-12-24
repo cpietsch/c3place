@@ -19,9 +19,10 @@ var (
 	cfg = config.Config{}
 
 	// in-mem data
-	data       [][]color.RGBA
-	newPixels  bool
-	imageCache []byte
+	data           [][]color.RGBA
+	dataGroundplan [][]color.RGBA
+	newPixels      bool
+	imageCache     []byte
 )
 
 func main() {
@@ -38,6 +39,13 @@ func main() {
 }
 
 func setupData() {
+	// load the groundplan
+	var err error
+	dataGroundplan, err = utils.LoadPngToColorArray("groundplan.png", imageWidth, imageHeight)
+	if err != nil {
+		panic(err)
+	}
+
 	// load the last image and add data to the data array
 	latestImage, err := utils.GetLatestImageFilename(imageDir)
 	if err != nil {
@@ -53,9 +61,18 @@ func buildImage() image.Image {
 	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
 	for x := 0; x < imageWidth; x++ {
 		for y := 0; y < imageHeight; y++ {
-			img.Set(x, y, data[x][y])
+			// draw the groundplan
+			if dataGroundplan[x][y].R == 255 &&
+				dataGroundplan[x][y].G == 255 &&
+				dataGroundplan[x][y].B == 255 {
+				img.Set(x, y, colorGroundplan)
+			} else {
+				// draw the pixels
+				img.Set(x, y, data[x][y])
+			}
 		}
 	}
+
 	return img
 }
 
