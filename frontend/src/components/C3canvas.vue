@@ -102,7 +102,7 @@ export default {
     }
   },
   mounted: function() {
-    interval(this.loadImage, 5000);
+    interval(this.loadImage, 4000);
     this.loadImage();
     this.container = select(this.$refs.container).call(this.zoom);
     // .on("click", this.onClick);
