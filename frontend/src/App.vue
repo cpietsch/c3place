@@ -10,6 +10,7 @@ body,
 html {
   margin: 0;
   padding: 0;
+  background: #000;
 }
 #app {
 }

@@ -11,7 +11,7 @@ import { select, event, mouse } from "d3-selection";
 import { interval } from "d3-timer";
 
 // const url = "http://localhost:4000/";
-const url = "https://bd0a681b.ngrok.io/";
+const url = "http://78.47.194.107:4000/";
 
 export default {
   props: ["color"],
@@ -96,7 +96,7 @@ export default {
       // const imageUrl = "canvas.png";
       loadImage(imageUrl).then(image => {
         // console.log(image);
-        // this.context.clearRect(0, 0, 1000, 1000);
+        this.context.clearRect(0, 0, 1000, 1000);
         this.context.drawImage(image, 0, 0, 1000, 1000);
       });
     }
@@ -133,7 +133,7 @@ canvas {
   position: absolute;
   width: 1000px;
   height: 1000px;
-  will-change: transform;
+  /*will-change: transform;*/
   transform-origin: 0 0;
   image-rendering: pixelated;
   /* border: 1px solid #000; */
