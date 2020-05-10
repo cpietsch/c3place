@@ -57,7 +57,7 @@ func LoadPngToColorArray(filename string, w, h int) ([][]color.RGBA, error) {
 		return data, err
 	}
 
-	// set the pixel color to teh data array
+	// set the pixel color to the data array
 	for x := 0; x < w; x++ {
 		for y := 0; y < h; y++ {
 			c := loadedImage.At(x, y)
@@ -68,3 +68,24 @@ func LoadPngToColorArray(filename string, w, h int) ([][]color.RGBA, error) {
 
 	return data, nil
 }
+
+// func LoadGroundplan(filename string, w, h int)  ([][]color.RGBA, error) {
+// 	// initialize the data array
+// 	data := make([][]color.RGBA, w)
+// 	for i := range data {
+// 		data[i] = make([]color.RGBA, h)
+// 	}
+
+// 	// read the groundplan
+// 	imageFile, err := os.Open(filename)
+// 	if err != nil {
+// 		return data, err
+// 	}
+// 	defer imageFile.Close()
+// 	loadedImage, err := png.Decode(imageFile)
+// 	if err != nil {
+// 		return data, err
+// 	}
+
+// 	return data, nil,
+// }
